@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economic Quiz Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #16a085;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --correct-color: #2ecc71;
+            --incorrect-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Pyidaungsu';
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 80px; 
+            display: flex;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .quiz-container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        /* Score Display */
+        .score-board {
+            background: #eef2f7;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        /* Quiz Content Area */
+        .quiz-section {
+            min-height: 200px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .question-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #eee;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .question-number {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-right: 5px;
+        }
+
+        /* စာလုံးမဲ (Bold Keywords) Styling */
+        .bold-keyword {
+            font-weight: 800;
+            color: #111111;
+            background-color: #f1c40f33;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+
+        input[type="text"] {
+            border: none;
+            border-bottom: 2px solid #999;
+            background: transparent;
+            padding: 2px 5px;
+            font-size: 1rem;
+            width: 170px;
+            text-align: center;
+            color: #2980b9;
+            font-weight: bold;
+            outline: none;
+            transition: border-color 0.3s;
+            margin: 0 5px;
+        }
+
+        input[type="text"]:focus {
+            border-bottom-color: var(--primary-color);
+        }
+
+        input[type="text"].correct {
+            border-bottom-color: var(--correct-color);
+            color: var(--correct-color);
+            background-color: #e8f8f5;
+        }
+
+        input[type="text"].incorrect {
+            border-bottom-color: var(--incorrect-color);
+            color: var(--incorrect-color);
+            background-color: #fdedec;
+        }
+
+        .reveal-answer {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-top: 8px;
+            display: none;
+            font-weight: bold;
+            background: #eefaf7;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        /* Tabs Layout */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+        }
+
+        .tab-btn {
+            background: #e0e0e0;
+            border: none;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            flex: 1 1 calc(33.33% - 6px); 
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .btn-check {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-check:hover {
+            background-color: #117a65;
+        }
+
+        .btn-retry {
+            background-color: #7f8c8d;
+            color: white;
+        }
+
+        .btn-retry:hover {
+            background-color: #626567;
+        }
+
+        /* Download Tab Styling */
+        .download-section {
+            text-align: center;
+            padding: 30px 10px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 15px;
+        }
+
+        .download-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Fixed Footer */
+        .fixed-footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #2c3e50;
+            color: #ffffff;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+
+        /* Mobile Phone Layout */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+                padding-bottom: 90px;
+            }
+            .quiz-container {
+                padding: 15px;
+            }
+            .tab-btn {
+                flex: 1 1 calc(50% - 6px); 
+                font-size: 0.85rem;
+                padding: 8px 10px;
+            }
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            .fixed-footer {
+                font-size: 0.8rem;
+                padding: 10px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="score-board" id="scoreBoard">
+        လက်ရှိအပိုင်းရမှတ် - <span id="scoreText">0 / 0 (0%)</span>
+    </div>
+
+    <div class="quiz-section">
+        <div id="quizContent"></div>
+
+        <div id="downloadTab" class="tab-content">
+            <div class="download-section">
+                <h3>အကိုးအကားသင်ခန်းစာ PDF ဖိုင်ကို ဤနေရာတွင် ဒေါင်းလုဒ်ရယူနိုင်ပါသည်။</h3>
+                <p>မေးခွန်းဟောင်းများနှင့် အဖြေများပါဝင်သော Economic.pdf ကို သိမ်းဆည်းရန် အောက်ပါ ခလုတ်ကို နှိပ်ပါ။</p>
+                <a href="Economic.pdf" download="Economic.pdf" class="download-btn">📥 Download Economic.pdf</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(0)">ဘောဂဗေဒ အခြေခံ</button>
+        <button class="tab-btn" onclick="switchTab(1)">ဖွံ့ဖြိုးမှု ဘောဂဗေဒ</button>
+        <button class="tab-btn" onclick="switchTab(2)">စီးပွားရေးစီမံကိန်း</button>
+        <button class="tab-btn" onclick="switchTab(3)">Statistics</button>
+        <button class="tab-btn" onclick="switchTab(4)">📥 PDF ဒေါင်းရန်</button>
+    </div>
+
+    <div class="action-buttons" id="controlButtons">
+        <button class="btn btn-check" onclick="checkAnswers()">Check Answer</button>
+        <button class="btn btn-retry" onclick="shuffleCurrentTab()">Try Again</button>
+    </div>
+</div>
+
+<div class="fixed-footer">
+    &copy; 2026 All Rights Reserved | Student Number: 142
+</div>
+
+<script>
+    const quizData = [
+        {
+            tabTitle: "ဘောဂဗေဒဘာသာရပ်၏ အခြေခံသဘောတရားများ",
+            questions: [
+                { q: "စီးပွားရေးအဆောက်အအုံကိုလေ့လာရာတွင် လေ့လာ သည့် နည်း (၂) မျိုးမှာ [မိုက်ခရိုစီးပွားရေး] နှင့် <span class='bold-keyword'>မက်ခရိုစီးပွားရေး</span> ဖြစ်သည်၊၊", a: ["မိုက်ခရိုစီးပွားရေး"] },
+                { q: "လုပ်ငန်းတစ်ခုချင်း၊ အိမ်ထောင်စုတစ်စုချင်း၊ လူပုဂ္ဂိုလ်တစ်ဦးချင်း စသည်တို့ကိုတိုင်းတာဖော်ပြခြင်းသည် [မိုက်ခရိုစီးပွားရေး] ဖြစ်သည်။", a: ["မိုက်ခရိုစီးပွားရေး"] },
+                { q: "စီးပွားရေးအဆောက်အအုံတစ်ခုလုံးကိုခြုံငုံလေ့လာခြင်းသည် [မက်ခရိုစီးပွားရေး] ဖြစ်သည်။", a: ["မက်ခရိုစီးပွားရေး"] },
+                { q: "အလုပ်လက်မဲ့ဖြစ်ပွားမှု၊ ငွေကြေးဖောင်းပွမှု၊ <span class='bold-keyword'>စီးပွားဖွံ့ဖြိုး တိုးတက်မှု</span>၊ ကုန်သွယ်ရှင်းတမ်း စသည်တို့ကို တိုင်းတာဖော်ပြ ခြင်းသည် [မက်ခရိုစီးပွားရေး] ဖြစ်သည်။", a: ["မက်ခရိုစီးပွားရေး"] },
+                { q: "[ငွေကြေးဖောင်းပွမှု] ဆိုသည်မှာ သတ်မှတ်ကာလတစ်ခုအတွင်း ကုန်စည်နှင့် ဝန်ဆောင်မှုများ ၏ အထွေထွေဈေးနှုန်းအဆင့်မြင့် တက်မှုနှုန်းကိုခေါ်ပါသည်။", a: ["ငွေကြေးဖောင်းပွမှု"] },
+                { q: "ငွေကြေးဖောင်းပွမှုအမျိုးအစား [၃] မျိုးရှိသည်။", a: ["၃", "3"] },
+                { q: "စီးပွားရေးစနစ်တစ်ခုတွင် သယံဇာတအရင်းအမြစ်များ အသုံးပြုခြင်းဆိုင်ရာ ဆုံးဖြတ်ချက်ချမှတ်နိုင်သော စီးပွားရေးယူနစ်များတွင် [စားသုံးသူများ] ပါဝင်ပါသည်။", a: ["စားသုံးသူများ"] },
+                { q: "အရင်းအနှီးဟုဆိုလျှင် [ပုံသေအရင်းအနှီး] ဖြစ်သော <span class='bold-keyword'>လမ်းပန်းဆက်သွယ်ရေး</span>၊ စက်ရုံ، အလုပ်ရုံများ ပါဝင်ပါသည်။", a: ["ပုံသေအရင်းအနှီး"] },
+                { q: "အရင်းအနှီးဟုဆိုလျှင် စက်ကိရိယာတန်ဆာပလာနှင့် [အလုပ်သုံးအရင်းအနှီး] ဖြစ်သော <span class='bold-keyword'>ကုန်ကြမ်း၊ လောင်စာ၊ လုပ်အား</span> တို့ပါဝင်သည်။", a: ["အလုပ်သုံးအရင်းအနှီး"] },
+                { q: "မြန်မာ့စီးပွားရေးအဆောက်အအုံတွင် [ကုန်ထုတ်မှု] ကဏ္ဍ ၊ ဝန်ဆောင်မှုကဏ္ဍ နှင့် ကုန်သွယ်မှုကဏ္ဍ ဟူ၍ (၃) မျိုးရှိပြီး စီးပွားရေးကဏ္ဍ <span class='bold-keyword'>(၁၄) မျိုး</span> ဖြင့်ဖွဲ့စည်းထားသည်။", a: ["ကုန်ထုတ်မှု"] },
+                { q: "[ဝယ်လိုအား] ဆိုသည်မှာ အချိန်ကာလတစ်ခုအတွင်း ဈေးနှုန်း အသီးသီးတွင် စားသုံးသူများဝယ်ယူသည့် အရေအတွက် ကိုဆိုလိုသည်။", a: ["ဝယ်လိုအား"] },
+                { q: "ဝယ်လိုအားဥပဒေသဆိုသည်မှာ ဈေးနှုန်းနှင့် ဝယ်လိုအား တို့သည် [ပြောင်းပြန်] ဆက်စပ်နေမည်ဖြစ်သည်၊၊", a: ["ပြောင်းပြန်"] },
+                { q: "ဝယ်လိုအားအလျော့အတင်းဆိုသည်မှာ [ဈေးနှုန်း] ပြောင်းလဲမှုအပေါ် ဝယ်လိုအားမည်မျှအထိ တုံ့ပြန်ပြောင်းလဲနိုင်သည်ကို တိုင်းတာခြင်းဖြစ်သည်။", a: ["ဈေးနှုန်း"] },
+                { q: "ရောင်းလိုအားဥပဒေသတွင် အချက်အလက်များ ပြောင်းလဲမှုမရှိလျှင် ဈေးနှုန်းနှင့် ရောင်းချမည့်ကုန်စည် အရေအတွက်တို့သည် [တိုက်ရိုက်] ဆက်စပ်နေသည်။", a: ["တိုက်ရိုက်"] },
+                { q: "[အားမျှခြေ] ဆိုသည်မှာ ဈေးကွက်အတွင်းရှိ ကုန်စည်၏ ဝယ်လိုအားအရေအတွက်နှင့် ရောင်းလိုအားအရေအတွက်တို့ ညီမျှနေပြီး <span class='bold-keyword'>တည်ငြိမ်မှုရှိခြင်း</span> ကိုဆိုလိုသည်။", a: ["အားမျှခြေ"] },
+                { q: "သတ်မှတ်ထားသောကာလတစ်ရပ်အတွင်း တိုင်းပြည်တစ်ပြည်၏ [နယ်နိမိတ်] တစ်ခုအတွင်းတွင် ထုတ်လုပ်ရရှိသော ကုန်စည်နှင့်ဝန်ဆောင်မှုများ၏ စုစုပေါင်းတန်ဖိုးကို <span class='bold-keyword'>စုစုပေါင်းပြည်တွင်းထုတ်ကုန်တန်ဖိုး (GDP)</span> ဟုခေါ်သည်။", a: ["နယ်နိမိတ်"] },
+                { q: "သတ်မှတ်ထားသောကာလတစ်ရပ်အတွင်း တိုင်းပြည်တစ်ပြည်မှ [နိုင်ငံသားများ] ထုတ်လုပ်သော ကုန်စည်နှင့်ဝန်ဆောင်မှုများ၏ စုစုပေါင်းတန်ဖိုး ကို စုစုပေါင်းတိုင်းပြည်ထုတ်ကုန်တန်ဖိုး (GNP) ဟုခေါ်သည်။", a: ["နိုင်ငံသားများ"] },
+                { q: "ပို့ကုန်၊ သွင်းကုန်လုပ်ငန်းများ ဆောင်ရွက်ရာတွင် ကုန်သွယ်မှု နည်းလမ်း (၂) မျိုးမှာ ပုံမှန်ကုန်သွယ်မှုနည်းလမ်းနှင့် [နယ်စပ်ကုန်သွယ်မှုနည်းလမ်း] ဖြစ်သည်။", a: ["နယ်စပ်ကုန်သွယ်မှုနည်းလမ်း", "နယ်စပ်ကုန်သွယ်မှု နည်းလမ်း"] },
+                { q: "နိုင်ငံတစ်နိုင်ငံတွင် ဘဏ်အရေအတွက် အများဆုံးသော ဘဏ်အမျိုးအစားမှာ [ကူးသန်းရောင်းဝယ်ရေးဘဏ်] ပင်ဖြစ်သည်။", a: ["ကူးသန်းရောင်းဝယ်ရေးဘဏ်", "ကူးသန်းရောင်းဝယ်ရေး ဘဏ်"] },
+                { q: "စီးပွားရေးအဆောက်အအုံတိုင်း၏ အောင်မြင်ပြီးမြောက်လိုသည့် ရည်မှန်းချက်ပန်းတိုင် [၃] ခုရှိသည်။", a: ["၃", "3"] },
+                { q: "ကုန်သွယ်မှု သီအိုရီများသည် အပြည်ပြည်ဆိုင်ရာကုန်သွယ်မှုကို နားလည်ရန် အထောက်အကူ ပေးသော [စီးပွားရေးသီအိုရီ] များ ဖြစ်သည်။", a: ["စီးပွားရေးသီအိုရီ"] },
+                { q: "[ဗဟိုဘဏ်] သည် နိုင်ငံရှိ ဘဏ်အားလုံးကို အုပ်ချုပ်သည့် <span class='bold-keyword'>တစ်ခုတည်းသောဘဏ်</span> ဖြစ်သည်။", a: ["ဗဟိုဘဏ်"] },
+                { q: "တစ်နိုင်ငံနှင့် တစ်နိုင်ငံ [ထွက်ကုန်] များရောင်းဝယ်ဖလှယ် ကုန်သွယ်ကြရာမှ အပြည်ပြည်ဆိုင်ရာကုန်သွယ်မှု ကျယ်ပြန့်တိုးတက်လာသည်ကို တွေ့ရပေသည်။", a: ["ထွက်ကုန်"] },
+                { q: "တိုင်းပြည်ဝင်ငွေဆိုသည်မှာ ပြည်သူများ၏ တစ်နှစ်အတွင်း [ထုတ်လုပ်ခြင်း] မှ ရရှိသော စုစုပေါင်းဝင်ငွေပင်ဖြစ်သည်၊၊", a: ["ထုတ်လုပ်ခြင်း"] },
+                { q: "ဝယ်ယူနိုင်စွမ်းအားတူညီမှုကိုအသုံးပြုခြင်းဖြင့် နိုင်ငံများကြား [တိုင်းပြည်ဝင်ငွေ] ဝင်ငွေကွာခြားချက်ကို ပို၍တိတိကျကျတိုင်းတာနိုင်မည်ဖြစ်သည်၊၊", a: ["တိုင်းပြည်ဝင်ငွေ"] },
+                { q: "ကူးသန်းရောင်းဝယ်ရေးဘဏ်ဆိုသည်မှာ [ငွေရေးကြေးရေး] ဝန်ဆောင်မှုမျိုးစုံ အပြည့်အဝရရှိနိုင်သည့် ဘဏ်အမျိုးအစားဖြစ်ပါသည်။", a: ["ငွေရေးကြေးရေး"] },
+                { q: "နိုင်ငံများတွင် အဓိကဆောင်ရွက်လျှက်ရှိသော ထင်ရှားသော ကုန်သွယ်မှု သီအိုရီ (၂)ခုမှာ ပကတိအကျိုးနှင့် [နှိုင်းရအကျိုး] တို့ဖြစ်သည်။", a: ["နှိုင်းရအကျိုး"] },
+                { q: "နိုင်ငံတစ်နိုင်ငံသည် အခြားနိုင်ငံတစ်နိုင်ငံထက် ဈေးနှုန်းသက်သာသော ကုန်ပစ္စည်းများကို ထုတ်လုပ်နိုင်လျှင် ကုန်သွယ်မှုတွင် [ပကတိအကျိုး] ရှိသည်။", a: ["ပကတိအကျိုး"] },
+                { q: "[အခွင့်အလမ်းစရိတ်] ဆိုသည်မှာ ကုန်ပစ္စည်းတစ်ခုကို ပိုမိုထုတ်လုပ်ရန်အတွက် လက်လွှတ်လိုက်ရသည့် အခြားကုန်ပစ္စည်း၏ ပမာဏကိုဆိုလိုခြင်းဖြစ်သည်။", a: ["အခွင့်အလမ်းစရိတ်"] },
+                { q: "နိုင်ငံတစ်နိုင်ငံသည် အခြားနိုင်ငံများထက် အခွင့်အလမ်းစရိတ် သက်သာစွာဖြင့် ကုန်ပစ္စည်းများကို ထုတ်လုပ်နိုင်လျှင် [နှိုင်းရအကျိုး] ရှိသည်ဟု သတ်မှတ်နိုင်ပါသည်။", a: ["နှိုင်းရအကျိုး"] },
+                { q: "ကုန်သွယ်မှု၏ အကျိုးကျေးဇူး [၇] ချက်ရှိသည်။", a: ["၇", "7"] }
+            ]
+        },
+        {
+            tabTitle: "ဖွံ့ဖြိုးမှုဘောဂဗေဒဘာသာရပ်",
+            questions: [
+                { q: "စီးပွားရေးတိုးတက်မှုသည် နိုင်ငံတစ်နိုင်ငံ၏စီးပွားရေး အခြေအနေများ တိုးတက်မှုကို ဖော်ပြသောညွှန်းကိန်းများအနက် တိုင်းပြည် ဝင်ငွေ၊ [တစ်ဦးကျဝင်ငွေ] တိုးတက်မှုတို့ကိုခေါ်သည်။", a: ["တစ်ဦးကျဝင်ငွေ"] },
+                { q: "လုပ်သားတို့၏ [ထုတ်လုပ်မှုစွမ်းရည်] ကို မြှင့်တင်ပေးခြင်းအားဖြင့် <span class='bold-keyword'>ပညာရေး၊ ကျန်းမာရေး၊ စီးပွားရေး</span> စသည့် လုပ်ငန်းကဏ္ဍများတွင် အကျိုးသက်ရောက်မှုများကိုရရှိစေပါသည်။", a: ["ထုတ်လုပ်မှုစွမ်းရည်"] },
+                { q: "စိုက်ပျိုးနိုင်သောမြေယာ၊ ရေနံနှင့်သဘာဝဓာတ်ငွေ့ ၊ရေနှင့် ဓာတ်သတ္တုအရင်းအမြစ်များ သဘာဝပတ်ဝန်းကျင် တို့သည် အရေးပါသော [သယံဇာတအရင်းအမြစ်] များဖြစ်ကြသည်။", a: ["သယံဇာတအရင်းအမြစ်"] },
+                { q: "အရင်းအနှီးဖွဲ့စည်းခြင်းသည် စီးပွားရေးတိုးတက်မှုအတွက် အဓိကကျပြီး တစ်ဖက်တွင်ထိရောက်သော [ဝယ်လိုအား] ကို ဖြစ်ပေါ်စေသည်။", a: ["ဝယ်လိုအား"] },
+                { q: "တစ်ဦးကျဝင်ငွေတိုးတက်မှုနှင့်အတူ ဘက်စုံထောင့်စုံပြည့်စုံစွာ တိုးတက်ကောင်းမွန်မှုကို [စီးပွားရေးဖွံ့ဖြိုးတိုးတက်မှု] ဟုခေါ်သည်။", a: ["စီးပွားရေးဖွံ့ဖြိုးတိုးတက်မှု"] },
+                { q: "ဘဏ္ဍာရေးမူဝါဒ (Financial Policy) သည် [အစိုးရ] ၏ <span class='bold-keyword'>သုံးမှန်းခြေငွေစာရင်းဆိုင်ရာ</span> လုပ်ဆောင်ချက် ဖြစ်သည်။", a: ["အစိုးရ"] },
+                { q: "ငွေကြေးမူဝါဒ (Monetary Policy) သည် [ဗဟိုဘဏ်] ၏ လုပ်ဆောင်ချက်ဖြစ်သည်။", a: ["ဗဟိုဘဏ်"] },
+                { q: "ဖွံ့ဖြိုးမှုသီအိုရီအရ ဖွံ့ဖြိုးဆဲနိုင်ငံများအနေဖြင့် ဖွံ့ဖြိုးပြီးနိုင်ငံများ၏ စီးပွားရေးတိုးတက်မှုလမ်းကြောင်းအတိုင်း လိုက်နာရန်မှန်ကန်သော [စုဆောင်းမှု] ပမာဏနှင့်ပေါင်းစပ်ထားသည့် ရင်းနှီးမြှုပ်နှံမှု နှင့် နိုင်ငံခြားအကူအညီများအားလုံးလိုအပ်သည်ဟု ဆိုပါသည်။", a: ["စုဆောင်းမှု"] },
+                { q: "ဆင်းရဲနွမ်းပါးသူဆိုသည်မှာ ဆင်းရဲနွမ်းပါးမှုပြမျဉ်းအောက် (သို့) ထိုမျဉ်းနှင့်ညီမျှသော စုစုပေါင်း [တစ်ဦးကျဝင်ငွေ (သို့မဟုတ်) အသုံးစရိတ်] များသည် ထိုအိမ်ထောင်စုတွင်နေထိုင်သူဖြစ်သည်။", a: ["တစ်ဦးကျဝင်ငွေ (သို့မဟုတ်) အသုံးစရိတ်", "တစ်ဦးကျဝင်ငွေ(သို့မဟုတ်)အသုံးစရိတ်", "တစ်ဦးကျဝင်ငွေ သို့မဟုတ် အသုံးစရိတ်"] },
+                { q: "အလုံးစုံဆင်းရဲမွဲတေမှုညွှန်းကိန်း (MPI) တွက်ချက်ရာတွင် အဓိကကဏ္ဍ [၃] ခုခွဲထားပြီး ညွှန်းကိန်းပေါင်း (၁ဝ)ခု ဖြင့် တိုင်းတာသည်။", a: ["၃", "3"] },
+                { q: "အိုရင်းသီအိုရီတွင် ကုန်စည်၏တန်ဖိုးသည် ထုတ်လုပ်မှုအဆင့်တိုင်းတွင် ပါဝင်လုပ်ဆောင်သူ လုပ်သားများ၏ [ကျွမ်းကျင်မှု] မှာအဓိကလိုအပ်ချက်ဖြစ်သည်။", a: ["ကျွမ်းကျင်မှု"] },
+                { q: "တိုးတက်မှုအင်အားစု(၄)မျိုးမှာ [လူသားအရင်းအမြစ်များ]၊ သဘာဝအရင်းအမြစ်များ၊ အရင်းအနှီးဖွဲ့စည်းခြင်း နှင့် နည်းပညာခေတ်မှီမှု တို့ဖြစ်သည်။", a: ["လူသားအရင်းအမြစ်များ"] },
+                { q: "ရောစတိုးသီအိုရီတွင် ဖွံဖြိုးမှုခရီးစဉ်အဆင့် [၅] ဆင့်ရှိသည်။", a: ["၅", "5"] },
+                { q: "စီးပွားရေးတိုးတက်စေရန်အတွက် အသားတင်ရင်းနှီးမြှုပ်နှံမှု တိုးတက်စေမည့် ရင်းနှီးမြှုပ်နှံမှုအသစ်များကို ပြည်တွင်းဝင်ငွေစုစုပေါင်းမှ တစိတ်တပိုင်းကို [စုဆောင်းရန်] လိုအပ်ပါသည်။", a: ["စုဆောင်းရန်"] },
+                { q: "နိုင်ငံတကာမှီခိုမှုသီအိုရီ၏နောက်တစ်မျိုးမှာ [စံလွဲမှားခြင်းပုံစံ] ဖြစ်သည်။", a: ["စံလွဲမှားခြင်းပုံစံ"] }
+            ]
+        },
+        {
+            tabTitle: "စီးပွားရေးစီမံကိန်းပညာ",
+            questions: [
+                { q: "စီမံကိန်းရေးဆွဲခြင်းဆိုသည်မှာ အနှစ်သာရအားဖြင့် [လူမှုရေးနှင့်စီးပွားရေး] ပြဿနာများကို ဖြေရှင်းရေးအတွက် <span class='bold-keyword'>လက်တွေ့ကျကျ</span> အဖြေရှာခြင်းဖြစ်သည်။", a: ["လူမှုရေးနှင့်စီးပွားရေး"] },
+                { q: "စီမံကိန်း၏ အစိတ်အပိုင်း (၂)မျိုးမှာ ရည်မှန်းချက်နှင့် နည်းလမ်းများနှင့် [အချိန်နှင့်နေရာ] တို့ဖြစ်သည်။", a: ["အချိန်နှင့်နေရာ"] },
+                { q: "စီးပွားရေးစီမံကိန်းမှန်သမျှသည် [ပစ္စုပ္ပန်] နှင့် <span class='bold-keyword'>အနာဂတ်ကာလ</span> တို့နှင့် သက်ဆိုင်သည်။", a: ["ပစ္စုပ္ပန်"] },
+                { q: "[စိစစ်မှုနှင့်ညှိနှိုင်းမှု] သည် စီမံကိန်းချဖြစ်စဉ်တစ်ရပ်အဖြစ် စနစ်တကျတည်ရှိနေရမည်。", a: ["စိစစ်မှုနှင့်ညှိနှိုင်းမှု"] },
+                { q: "အချိန်ကာလအလိုက် စီမံကိန်းများမှာ [နှစ်ရှည်] စီမံကိန်း၊ နှစ်လတ်စီမံကိန်း၊ နှစ်တိုစီမံကိန်းနှင့်နှစ်စဉ်စီမံကိန်းများဖြစ်သည်။", a: ["နှစ်ရှည်"] },
+                { q: "အချိန်ကာလအလိုက် စီမံကိန်းများမှ နှစ်ရှည်စီမံကိန်းသည် [၅ နှစ်] နှင့် ၁၀နှစ်အထက်ဖြစ်သည်။", a: ["၅ နှစ်", "5 နှစ်"] },
+                { q: "အခြေခံအဆောက်အအုံစနစ် [၃] မျိုး ရှိပါသည်။", a: ["၃", "3"] },
+                { q: "မြန်မာနိုင်ငံ၏ ရေရှည်တည်တံ့ခိုင်မြဲပြီး ဟန်ချက်ညီသော ဖွံ့ဖြိုးတိုးတက်မှုစီမံကိန်း (MSDP) ၏ မဏ္ဍိုင် (၃) ရပ်မှာ [ငြိမ်းချမ်းရေးနှင့် တည်ငြိမ်မှု] ၊ သာယာဝပြောမှုနှင့်ပူးပေါင်းဆောင်ရွက်မှု နှင့် ပြည်သူများနှင့်ကမ္ဘာမြေ တို့ဖြစ်ပါသည်။", a: ["ငြိမ်းချမ်းရေးနှင့် တည်ငြိမ်မှု", "ငြိမ်းချမ်းရေးနှင့်တည်ငြိမ်မှု"] },
+                { q: "ဒေသဖွံ့ဖြိုးရေးစီမံကိန်းမှ ရရှိသည့် အကျိုးကျေးဇူးမှာ <span class='bold-keyword'>အလုပ်အကိုင်အခွင့်အလမ်းများ</span> ရရှိပြီး [တစ်ဦးကျဝင်ငွေ] တိုးလာမည်။", a: ["တစ်ဦးကျဝင်ငွေ"] },
+                { q: "ဒေသဖွံ့ဖြိုးရေးစီမံကိန်းမှရရှိသည့်အကျိုးကျေးဇူးမှာ ဒေသဖွံ့ဖြိုးမှုများ အောင်မြင်လာပြီးမြို့ပြသို့ ပြောင်းရွှေ့နေထိုင်မှု နည်းလာပြီး [လူဦးရေထူထပ်မှု] လျော့နည်းလာမည်။", a: ["လူဦးရေထူထပ်မှု"] },
+                { q: "စီမံကိန်း၏ ဝိသေသလက္ခဏာရပ်များ [၅] ရပ် ရှိသည်။", a: ["၅", "5"] },
+                { q: "စီမံကိန်းအမျိုးအစား (၃) မျိုးမှာ [အမျိုးသားဖွံ့ဖြိုးမှုစီမံကိန်း]၊ လမ်းညွှန်စီမံကိန်း နှင့် ညွှန်ကြားချက်စီမံကိန်း တို့ဖြစ်ကြပါသည်။", a: ["အမျိုးသားဖွံ့ဖြိုးမှုစီမံကိန်း"] },
+                { q: "အမျိုးသားစီမံကိန်း (၃) မျိုးမှာ [အမျိုးသားဖွံ့ဖြိုးမှုစီမံကိန်း]၊ ကဏ္ဍအလိုက် စီမံကိန်းနှင့် ဒေသဖွံ့ဖြိုးမှုစီမံကိန်းတို့ဖြစ်ကြပါသည်။", a: ["အမျိုးသားဖွံ့ဖြိုးမှုစီမံကိန်း"] },
+                { q: "ဒေသဖွံ့ဖြိုးရေးစီမံကိန်း အောင်မြင်မှု၏ အကျိုးကျေးဇူး [၅] ချက်ရှိသည်။", a: ["၅", "5"] },
+                { q: "ဒေသဖွံ့ဖြိုးရေးစီမံကိန်း၏ ရည်ရွယ်ချက်မှာ ပြည်နယ်နှင့် တိုင်းများ၏ [စီးပွားရေးအချိုးကျကျ] တိုးတက်ဖွံ့ဖြိုးရေး ဖြစ်သည်။", a: ["စီးပွားရေးအချိုးကျကျ"] },
+                { q: "ကျေးလက်ဒေသဖွံ့ဖြိုးရေးနှင့် ဆင်းရဲနွမ်းပါးမှု လျှော့ချရေး လုပ်ငန်းစဉ် [၈] ရပ် ရှိသည်။", a: ["၈", "8"] },
+                { q: "မြစိမ်းရောင်စီမံကိန်း၏ ရည်ရွယ်ချက်မှာ အလုပ်အကိုင် အခွင့်အလမ်းနှင့် [မိသားစုဝင်ငွေ] တိုးပွားလာစေခြင်းဖြင့် ကျေးလက်ဒေသ ဆင်းရဲမှုနှုန်းကို လျှော့ချနိုင်ရန် ဖြစ်သည်။", a: ["မိသားစုဝင်ငွေ"] },
+                { q: "လူ့စွမ်းအားအရင်းအမြစ်သည် ယင်းနိုင်ငံလူဦးရေ၏ အရည်အချင်းများ ဖြစ်သော [ရုပ်ပိုင်းနှင့် စိတ်ပိုင်းဆိုင်ရာ] ဖြစ်သည်။", a: ["ရုပ်ပိုင်းနှင့် စိတ်ပိုင်းဆိုင်ရာ", "ရုပ်ပိုင်းနှင့်စိတ်ပိုင်းဆိုင်ရာ"] },
+                { q: "ခေတ်မီစံပြကျေးရွာထူထောင်ရေး စီမံကိန်းဆောင်ရွက်ခြင်းဖြင့် ရရှိလာသော အကျိုးကျေးဇူး [၅] ရပ် ရှိသည်။", a: ["၅", "5"] },
+                { q: "စီမံကိန်းကျေးရွာများရွေးချယ်ရာတွင် အခြေခံရမည့်စံနှုန်း [၆] ချက်ရှိသည်။", a: ["၆", "6"] }
+            ]
+        },
+        {
+            tabTitle: "Subject: Statistics",
+            questions: [
+                { q: "A numerical measure of a samples is called [statistic].", a: ["statistic"] },
+                { q: "A numerical measure of a population is called [parameter].", a: ["parameter"] },
+                { q: "The raw data are the data that give [information] on each individual member separately.", a: ["information"] },
+                { q: "[Array data] are arranged from the raw data in a systematic order as <span class='bold-keyword'>ascending or descending</span>.", a: ["Array data"] },
+                { q: "A subset of the population of interest is called [sample].", a: ["sample"] },
+                { q: "A collection of individuals or measurement of interest is called [population].", a: ["population"] },
+                { q: "[Inductive] statistics or inferential statistics are procedures for making decision on about measures of a population from measure of sample result.", a: ["Inductive"] },
+                { q: "[Quantitative] can be measured numerically.", a: ["Quantitative"] },
+                { q: "[Qualitative] can not be measured numerically.", a: ["Qualitative"] },
+                { q: "The most popular ways of presenting statistical data is [graphical] presentation.", a: ["graphical"] },
+                { q: "Two types of data compilation are [frequency] distribution and graphical presentation.", a: ["frequency"] },
+                { q: "Summary measure obtains by taking the difference between maximum and minimum value of a dataset is called [range].", a: ["range"] },
+                { q: "Methods of data collection are complete collection and [sampling collection].", a: ["sampling collection"] },
+                { q: "There are [4] types of statistical methods.", a: ["4"] },
+                { q: "[Descriptive] statistics are procedures for summarizing and describing data.", a: ["Descriptive"] }
+            ]
+        }
+    ];
+
+    let currentTabIndex = 0;
+    let activeQuestions = []; 
+
+    initQuiz();
+
+    function initQuiz() {
+        switchTab(0);
+    }
+
+    function switchTab(index) {
+        currentTabIndex = index;
+        
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach((btn, idx) => {
+            if(idx === index) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+
+        const controlButtons = document.getElementById('controlButtons');
+        const scoreBoard = document.getElementById('scoreBoard');
+        const quizContent = document.getElementById('quizContent');
+        const downloadTab = document.getElementById('downloadTab');
+
+        if (index === 4) {
+            quizContent.style.display = 'none';
+            downloadTab.style.display = 'block';
+            controlButtons.style.display = 'none';
+            scoreBoard.style.display = 'none';
+        } else {
+            quizContent.style.display = 'block';
+            downloadTab.style.display = 'none';
+            controlButtons.style.display = 'flex';
+            scoreBoard.style.display = 'block';
+            
+            shuffleCurrentTab();
+        }
+    }
+
+    function shuffleCurrentTab() {
+        const rawQuestions = [...quizData[currentTabIndex].questions];
+        for (let i = rawQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [rawQuestions[i], rawQuestions[j]] = [rawQuestions[j], rawQuestions[i]];
+        }
+        activeQuestions = rawQuestions;
+        renderQuestions();
+        
+        document.getElementById('scoreText').innerText = `0 / ${activeQuestions.length} (0%)`;
+    }
+
+    function renderQuestions() {
+        const container = document.getElementById('quizContent');
+        container.innerHTML = `<h2>${quizData[currentTabIndex].tabTitle}</h2>`;
+
+        activeQuestions.forEach((item, index) => {
+            const qItem = document.createElement('div');
+            qItem.className = 'question-item';
+
+            const formattedQuestion = item.q.replace(/\[.*?\]/g, () => {
+                return `<input type="text" class="quiz-input" data-index="${index}" placeholder="........">`;
+            });
+
+            qItem.innerHTML = `
+                <span class="question-number">${index + 1}။</span>
+                <span>${formattedQuestion}</span>
+                <div class="reveal-answer" id="ans-${index}">အဖြေမှန် - ${item.a[0]}</div>
+            `;
+            container.appendChild(qItem);
+        });
+    }
+
+    function checkAnswers() {
+        const inputs = document.querySelectorAll('.quiz-input');
+        let correctCount = 0;
+
+        inputs.forEach(input => {
+            const index = parseInt(input.getAttribute('data-index'));
+            const userAnswer = input.value.trim().toLowerCase();
+            const correctAnswers = activeQuestions[index].a.map(ans => ans.toLowerCase());
+            const answerReveal = document.getElementById(`ans-${index}`);
+
+            if (correctAnswers.includes(userAnswer)) {
+                input.classList.remove('incorrect');
+                input.classList.add('correct');
+                correctCount++;
+            } else {
+                input.classList.remove('correct');
+                input.classList.add('incorrect');
+            }
+            answerReveal.style.display = 'block';
+        });
+
+        const total = activeQuestions.length;
+        const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+        document.getElementById('scoreText').innerText = `${correctCount} / ${total} (${percentage}%)`;
+    }
+</script>
+
+</body>
+</html>
